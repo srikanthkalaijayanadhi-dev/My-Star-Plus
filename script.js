@@ -1,61 +1,7 @@
 const STORAGE_KEY = 'starplus_vanilla_uploads';
 
 // Base content array matching user specifications
-const defaultContentData = [
-  {
-    id: "m1",
-    title: "Cosmic Odyssey",
-    thumbnail: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?auto=format&fit=crop&w=800&q=80",
-    banner: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=2000&q=80",
-    category: "latest",
-    videoLink: "https://youtube.com",
-    isLatest: true,
-    views: 1250340,
-    uploadDate: new Date(Date.now() - 86400000 * 2).toISOString() // 2 days ago
-  },
-  {
-    id: "m2",
-    title: "Neon City Breakout",
-    thumbnail: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?auto=format&fit=crop&w=800&q=80",
-    banner: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=2000&q=80",
-    category: "latest",
-    videoLink: "https://youtube.com",
-    isLatest: true,
-    views: 890500,
-    uploadDate: new Date(Date.now() - 86400000 * 5).toISOString()
-  },
-  {
-    id: "m3",
-    title: "Mountain Peak",
-    thumbnail: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
-    banner: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80",
-    category: "trending",
-    videoLink: "https://youtube.com",
-    isLatest: false,
-    views: 2450000,
-    uploadDate: new Date(Date.now() - 86400000 * 10).toISOString()
-  },
-  {
-    id: "m4",
-    title: "Desert Rose",
-    thumbnail: "https://images.unsplash.com/photo-1461301214746-1e109215d6d3?auto=format&fit=crop&w=800&q=80",
-    category: "trending",
-    videoLink: "https://youtube.com",
-    isLatest: false,
-    views: 560230,
-    uploadDate: new Date(Date.now() - 86400000 * 15).toISOString()
-  },
-  {
-    id: "m5",
-    title: "Ocean Deep",
-    thumbnail: "https://images.unsplash.com/photo-1551244072-5d12891738f7?auto=format&fit=crop&w=800&q=80",
-    category: "latest",
-    videoLink: "https://youtube.com",
-    isLatest: false,
-    views: 12050,
-    uploadDate: new Date(Date.now() - 86400000 * 20).toISOString()
-  }
-];
+const defaultContentData = [];
 
 // Helper: Get merged data
 function getAllContentData() {
@@ -127,11 +73,17 @@ function setupSearch(allData) {
       if(heroSlider) heroSlider.style.display = 'none';
       if(latestSection) latestSection.style.display = 'none';
       if(trendingSection) trendingSection.style.display = 'none';
+      
+      const mainContent = document.getElementById('main-content-area');
+      if (mainContent) mainContent.classList.add('search-active');
     } else {
       searchSection.style.display = 'none';
       if(heroSlider) heroSlider.style.display = 'block';
       if(latestSection) latestSection.style.display = 'block';
       if(trendingSection) trendingSection.style.display = 'block';
+
+      const mainContent = document.getElementById('main-content-area');
+      if (mainContent) mainContent.classList.remove('search-active');
     }
   });
 }
