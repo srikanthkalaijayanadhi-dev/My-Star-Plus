@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - STARPLUS+</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Admin Login Overlay -->
+  <div id="admin-login-overlay" style="position:fixed;inset:0;background:var(--bg-color);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <div class="admin-glass-panel" style="width:100%;max-width:400px;text-align:center;">
+      <h2 style="margin-bottom:20px;">Admin Access</h2>
+      <input type="password" id="admin-pwd-input" placeholder="Enter Password" style="width:100%;padding:12px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;margin-bottom:15px;outline:none;text-align:center;">
+      <button onclick="checkAdminPassword()" class="btn-submit">Login</button>
+      <p id="admin-pwd-error" style="color:#ef4444;font-size:0.8rem;margin-top:10px;display:none;">Incorrect Password.</p>
+      <a href="index.html" style="display:inline-block;margin-top:20px;font-size:0.8rem;color:var(--text-muted);text-decoration:underline;">Return to Home</a>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav id="navbar" class="scrolled">
+    <div class="nav-left">
+      <img src="https://i.ibb.co/8JWh91Z/Untitled-design.png" alt="My Star Plus" class="nav-logo">
+    </div>
+    <div class="nav-right">
+      <a href="index.html" class="btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">View Site</a>
+    </div>
+  </nav>
+
+  <!-- Admin Panel -->
+  <div class="admin-container">
+    <div class="admin-header">
+      <div>
+        <h1 style="font-size: 2.5rem; margin-bottom: 8px;">Admin Panel</h1>
+        <p style="color: var(--text-muted);">Manage your OTT platform content securely.</p>
+      </div>
+    </div>
+
+    <div class="admin-grid">
+      <!-- Upload Form -->
+      <div class="admin-glass-panel">
+        <h2 style="margin-bottom: 24px; font-size: 1.2rem;">Add New Title</h2>
+        <form id="upload-form">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="upload-title" placeholder="e.g. Avengers: Endgame" required>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="upload-category" placeholder="e.g. Action, Sci-Fi" required>
+          </div>
+          <div class="form-group">
+            <label>Thumbnail Image URL (16:9 ratio)</label>
+            <input type="url" id="upload-thumb" placeholder="https://..." required>
+          </div>
+          <div class="form-group">
+            <label>Large Banner Image URL (Top Slider)</label>
+            <input type="url" id="upload-banner" placeholder="https://..." required>
+          </div>
+          <div class="form-group">
+            <label>Video Redirect URL</label>
+            <input type="url" id="upload-video" placeholder="https://youtube.com/..." required>
+          </div>
+          <div class="form-group">
+            <label>Initial Views</label>
+            <input type="number" id="upload-views" placeholder="e.g. 1000" value="0" required>
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="upload-isLatest" style="width: 20px; height: 20px;" checked>
+            <label style="margin-bottom: 0;">Feature in Top Banner (isLatest)</label>
+          </div>
+          <button type="submit" class="btn-submit">Publish Content</button>
+        </form>
+      </div>
+
+      <!-- Upload List -->
+      <div class="admin-glass-panel">
+        <h2 style="margin-bottom: 24px; font-size: 1.2rem;">Managed Uploads</h2>
+        <div id="uploads-list">
+          <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">Loading uploads...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

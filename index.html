@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STARPLUS+ OTT Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav id="navbar">
+    <div class="nav-left">
+      <img src="https://i.ibb.co/8JWh91Z/Untitled-design.png" alt="My Star Plus" class="nav-logo">
+      <div class="nav-links">
+        <a href="#" class="active">Home</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="search-container" style="display: flex; align-items: center; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 6px 12px; margin-right: 15px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="search-input" placeholder="Search titles..." style="background: transparent; border: none; outline: none; color: white; font-size: 0.9rem; width: 120px;">
+      </div>
+      <div class="user-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dynamic Hero Slider -->
+  <header class="hero-slider-container" id="hero-slider" tabindex="0">
+    <!-- Slides injected via JS -->
+  </header>
+
+  <!-- Main Content Rows -->
+  <main class="main-content" id="main-content-area">
+
+    <!-- Search Results Row (Hidden by default) -->
+    <section class="content-row" id="search-section" style="display: none;">
+      <h2 class="row-title">Search Results</h2>
+      <div class="row-container">
+        <button class="slider-btn left" onclick="slideRow('search-row', -300)">❮</button>
+        <div class="row-inner custom-scrollbar" id="search-row">
+          <!-- JS INJECTION -->
+        </div>
+        <button class="slider-btn right" onclick="slideRow('search-row', 300)">❯</button>
+      </div>
+    </section>
+    
+    <!-- Latest Uploads Row -->
+    <section class="content-row" id="latest-section">
+      <h2 class="row-title">Latest Uploads</h2>
+      <div class="row-container">
+        <button class="slider-btn left" onclick="slideRow('uploads-row', -300)">❮</button>
+        <div class="row-inner custom-scrollbar" id="uploads-row">
+          <!-- JS INJECTION -->
+        </div>
+        <button class="slider-btn right" onclick="slideRow('uploads-row', 300)">❯</button>
+      </div>
+    </section>
+
+    <!-- Trending Row -->
+    <section class="content-row" id="trending-section">
+      <h2 class="row-title">Trending Now</h2>
+      <div class="row-container">
+        <button class="slider-btn left" onclick="slideRow('trending-row', -300)">❮</button>
+        <div class="row-inner custom-scrollbar" id="trending-row">
+          <!-- JS INJECTION -->
+        </div>
+        <button class="slider-btn right" onclick="slideRow('trending-row', 300)">❯</button>
+      </div>
+    </section>
+    
+  </main>
+
+  <!-- Modal Overlay -->
+  <div class="modal-overlay" id="movie-modal" onclick="closeModal(event)">
+    <div class="modal-content">
+      <button class="modal-close" onclick="forceCloseModal()">✕</button>
+      <div class="modal-image">
+        <img id="modal-img" src="" alt="">
+      </div>
+      <div class="modal-details">
+        <span id="modal-category"></span>
+        <h2 id="modal-title"></h2>
+        <p>Watch this premium content now. Experience high quality cinematic storytelling directly on your device.</p>
+        <a href="#" id="modal-link" target="_blank" class="btn-watch">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Watch Now
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
