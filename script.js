@@ -363,4 +363,22 @@ window.deleteUpload = function(id) {
 document.addEventListener('DOMContentLoaded', () => {
   initFrontend();
   initAdmin();
+
+  // User Dropdown toggle
+  const userBtn = document.getElementById('user-menu-btn');
+  const userDropdown = document.getElementById('user-dropdown');
+  
+  if (userBtn && userDropdown) {
+    userBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdown.classList.toggle('show');
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.classList.remove('show');
+      }
+    });
+  }
 });

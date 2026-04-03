@@ -89,6 +89,7 @@ nav.scrolled {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  position: relative;
 }
 
 .search-icon {
@@ -104,6 +105,43 @@ nav.scrolled {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: var(--surface-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.user-dropdown.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.user-dropdown a {
+  padding: 0.8rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-main);
+  transition: background 0.2s;
+}
+
+.user-dropdown a:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Auto-Slider Modifications */
