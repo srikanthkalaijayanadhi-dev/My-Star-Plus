@@ -17,6 +17,19 @@ async function getAllContentData() {
   return data || [];
 }
 
+async function getAllAdsData() {
+  const { data, error } = await supabaseClient
+    .from('banners')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching ads:", error);
+    return [];
+  }
+  return data || [];
+}
+
 // Helper: Format ISO Date into "Monday, April 3" style
 function formatDate(isoString) {
   if (!isoString) return '';
@@ -58,6 +71,89 @@ async function initFrontend() {
   if(document.getElementById('search-input')) {
     setupSearch(allData);
   }
+
+  // 4. Setup Ads
+  const adsData = await getAllAdsData();
+  const activeAds = adsData.filter(ad => ad.isActive);
+  
+  // Banner & Video logic
+  const bannerAd = activeAds.find(ad => ad.adType === 'banner' || !ad.adType);
+  const videoAd = activeAds.find(ad => ad.adType === 'video');
+  const displayAd = videoAd || bannerAd;
+  
+  const adContainer = document.getElementById('promotional-ad-container');
+  if (displayAd && adContainer) {
+    adContainer.style.display = 'block';
+    if(displayAd.adType === 'video') {
+      adContainer.innerHTML = `
+        <a href="${displayAd.linkUrl || '#'}" target="_blank" style="display: block; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative;">
+          <span style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; font-size:0.7rem; border-radius:4px; z-index:10;">Ad</span>
+          <video src="${displayAd.videoUrl}" autoplay loop muted style="width: 100%; height: auto; max-height: 250px; object-fit: cover; display: block;"></video>
+        </a>
+      `;
+    } else {
+      adContainer.innerHTML = `
+        <a href="${displayAd.linkUrl || '#'}" target="_blank" style="display: block; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; position:relative;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          <span style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; font-size:0.7rem; border-radius:4px; z-index:10;">Ad</span>
+          <img src="${displayAd.imageUrl}" alt="Promotional Ad" style="width: 100%; height: auto; max-height: 250px; object-fit: cover; display: block;">
+        </a>
+      `;
+    }
+  }
+
+  // Native Ads logic
+  const nativeAds = activeAds.filter(ad => ad.adType === 'native');
+  if (nativeAds.length > 0) {
+    const latestRow = document.getElementById('uploads-row');
+    if (latestRow) {
+      nativeAds.forEach(nAd => {
+        const adCard = document.createElement('div');
+        adCard.className = 'thumbnail-card';
+        adCard.innerHTML = `
+          <img src="${nAd.imageUrl}" alt="Sponsor" loading="lazy">
+          <div class="card-overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);"></div>
+          <div style="position:absolute; top:8px; right:8px; background:var(--primary-color); color:white; padding:2px 6px; font-size:0.6rem; border-radius:4px; font-weight:bold; z-index:10;">SPONSORED</div>
+          <div class="card-info" style="bottom: 0;">
+            <div class="card-title" style="font-size:1.1rem; margin-bottom:5px;">${nAd.title || 'Sponsored Content'}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px; line-height:1.2;">${nAd.description || 'Check out this amazing offer.'}</div>
+            <a href="${nAd.linkUrl || '#'}" target="_blank" class="btn-primary" style="display:block; text-align:center; padding:6px; font-size:0.8rem; border-radius:6px; text-decoration:none;">Learn More</a>
+          </div>
+        `;
+        const insertPosition = Math.min(latestRow.children.length, Math.floor(Math.random() * 5));
+        latestRow.insertBefore(adCard, latestRow.children[insertPosition]);
+      });
+    }
+  }
+
+  // Interstitial Ad Logic
+  const interstitialAd = activeAds.find(ad => ad.adType === 'interstitial');
+  if (interstitialAd && !sessionStorage.getItem('interstitial_shown')) {
+    const overlay = document.getElementById('interstitial-ad');
+    if (overlay) {
+      overlay.innerHTML = `
+        <div class="interstitial-content">
+          <button class="interstitial-close" onclick="closeInterstitial()">✕</button>
+          <a href="${interstitialAd.linkUrl || '#'}" target="_blank">
+            <img class="interstitial-img" src="${interstitialAd.imageUrl}" alt="Ad">
+          </a>
+          <div class="interstitial-details">
+            <h2 style="margin-bottom:10px; font-size:1.5rem;">${interstitialAd.title || 'Special Offer'}</h2>
+            <p style="color:var(--text-muted); margin-bottom:20px; font-size:1rem;">${interstitialAd.description || 'Click the image above to learn more.'}</p>
+            <a href="${interstitialAd.linkUrl || '#'}" target="_blank" class="btn-primary" style="display:inline-block; padding:10px 30px; font-size:1.1rem; text-decoration:none; border-radius:8px;">View Offer</a>
+          </div>
+        </div>
+      `;
+      setTimeout(() => {
+        overlay.classList.add('active');
+        sessionStorage.setItem('interstitial_shown', 'true');
+      }, 2000);
+    }
+  }
+}
+
+window.closeInterstitial = function() {
+  const overlay = document.getElementById('interstitial-ad');
+  if(overlay) overlay.classList.remove('active');
 }
 
 function setupSearch(allData) {
@@ -311,30 +407,44 @@ async function initAdmin() {
 
     const btnSubmit = form.querySelector('.btn-submit');
     const ogText = btnSubmit.textContent;
-    btnSubmit.textContent = 'Uploading...';
+    btnSubmit.textContent = window.editingId ? 'Updating...' : 'Uploading...';
     btnSubmit.disabled = true;
 
-    const { data, error } = await supabaseClient
-      .from('movies')
-      .insert([{
-        title,
-        category,
-        thumbnail,
-        banner,
-        videoLink,
-        views,
-        isLatest
-      }]);
+    const payload = {
+      title,
+      category,
+      thumbnail,
+      banner,
+      videoLink,
+      views,
+      isLatest,
+      uploadDate: new Date().toISOString() // Updates to current date and day
+    };
 
-    btnSubmit.textContent = ogText;
+    let query = supabaseClient.from('movies');
+    if (window.editingId) {
+      query = query.update(payload).eq('id', window.editingId);
+    } else {
+      query = query.insert([payload]);
+    }
+
+    const { data, error } = await query;
+
     btnSubmit.disabled = false;
 
     if (error) {
-      alert("Error uploading: " + error.message);
+      alert("Error saving: " + error.message);
+      btnSubmit.textContent = ogText;
       return;
     }
 
     form.reset();
+    window.editingId = null;
+    
+    const formTitle = document.querySelector('.admin-glass-panel h2');
+    if (formTitle) formTitle.textContent = "Add New Title";
+    btnSubmit.textContent = "Publish Content";
+
     await renderAdminList();
   });
 }
@@ -344,6 +454,7 @@ async function renderAdminList() {
   if (!listCont) return;
 
   const uploads = await getAllContentData();
+  window.currentUploads = uploads; // store for editing
   listCont.innerHTML = '';
 
   if (uploads.length === 0) {
@@ -354,9 +465,10 @@ async function renderAdminList() {
   uploads.forEach(item => {
     const div = document.createElement('div');
     div.className = 'upload-item';
+    div.style.position = 'relative'; // Ensure absolute positioning context for buttons
     div.innerHTML = `
       <img src="${item.thumbnail}" alt="">
-      <div class="upload-info">
+      <div class="upload-info" style="padding-right: 80px;">
         <span style="font-size: 0.7rem; color: var(--secondary-color); font-weight: bold; text-transform: uppercase;">
           ${item.category} ${item.isLatest ? ' <span style="background:var(--primary-color);color:white;padding:2px 4px;border-radius:4px;font-size:0.6rem;">Feature</span>' : ''}
         </span>
@@ -364,11 +476,37 @@ async function renderAdminList() {
         <div style="font-size:0.6rem; color:var(--text-muted); margin-bottom:4px;">${item.uploadDate ? formatDate(item.uploadDate) : ''} • 👁 ${(item.views || 0).toLocaleString()} Views</div>
         <a href="${item.videoLink}" target="_blank" style="font-size: 0.8rem; color: #3b82f6;">${item.videoLink}</a>
       </div>
-      <button class="btn-delete" onclick="deleteUpload('${item.id}')">✕</button>
+      <div style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); display: flex; gap: 8px;">
+        <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="editUpload('${item.id}')">Edit</button>
+        <button class="btn-delete" style="position: relative; right: auto; top: auto; transform: none;" onclick="deleteUpload('${item.id}')">✕</button>
+      </div>
     `;
     listCont.appendChild(div);
   });
 }
+
+window.editUpload = function(id) {
+  const item = window.currentUploads.find(i => i.id === id);
+  if(!item) return;
+
+  document.getElementById('upload-title').value = item.title;
+  document.getElementById('upload-category').value = item.category;
+  document.getElementById('upload-thumb').value = item.thumbnail;
+  document.getElementById('upload-banner').value = item.banner;
+  document.getElementById('upload-video').value = item.videoLink;
+  document.getElementById('upload-views').value = item.views || 0;
+  document.getElementById('upload-isLatest').checked = Boolean(item.isLatest);
+  
+  window.editingId = item.id;
+  
+  const formTitle = document.querySelector('.admin-glass-panel h2');
+  if (formTitle) formTitle.textContent = "Edit Title";
+  
+  const btnSubmit = document.querySelector('#upload-form .btn-submit');
+  if (btnSubmit) btnSubmit.textContent = "Update Content";
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
 window.deleteUpload = async function(id) {
   const { error } = await supabaseClient
@@ -383,9 +521,145 @@ window.deleteUpload = async function(id) {
   await renderAdminList();
 };
 
+/* =========================================
+   Ad Management Logic
+========================================= */
+
+async function initAdminAds() {
+  const adForm = document.getElementById('ad-upload-form');
+  if (!adForm) return;
+
+  await renderAdminAdsList();
+
+  adForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const adType = document.getElementById('ad-type').value;
+    const imageUrl = document.getElementById('ad-image').value;
+    const videoUrl = document.getElementById('ad-video').value;
+    const title = document.getElementById('ad-title').value;
+    const description = document.getElementById('ad-desc').value;
+    const linkUrl = document.getElementById('ad-link').value;
+    const isActive = document.getElementById('ad-isActive').checked;
+
+    const btnSubmit = adForm.querySelector('.btn-submit');
+    const ogText = btnSubmit.textContent;
+    btnSubmit.textContent = window.editingAdId ? 'Updating Ad...' : 'Publishing Ad...';
+    btnSubmit.disabled = true;
+
+    const payload = { adType, imageUrl, videoUrl, title, description, linkUrl, isActive };
+
+    let query = supabaseClient.from('banners');
+    if (window.editingAdId) {
+      query = query.update(payload).eq('id', window.editingAdId);
+    } else {
+      query = query.insert([payload]);
+    }
+
+    const { error } = await query;
+
+    btnSubmit.disabled = false;
+
+    if (error) {
+      alert("Error saving ad: " + error.message);
+      btnSubmit.textContent = ogText;
+      return;
+    }
+
+    adForm.reset();
+    window.editingAdId = null;
+    btnSubmit.textContent = "Publish Ad";
+    
+    const formTitle = document.querySelector('#ad-upload-form').previousElementSibling;
+    if (formTitle) formTitle.textContent = "Add New Ad Banner";
+
+    await renderAdminAdsList();
+  });
+}
+
+async function renderAdminAdsList() {
+  const listCont = document.getElementById('ads-list');
+  if (!listCont) return;
+
+  const ads = await getAllAdsData();
+  window.currentAds = ads;
+  listCont.innerHTML = '';
+
+  if (ads.length === 0) {
+    listCont.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 40px 0;">No ads created yet.</p>`;
+    return;
+  }
+
+  ads.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'upload-item';
+    div.style.position = 'relative'; 
+    const badgeColor = item.adType === 'interstitial' ? '#eab308' : (item.adType === 'video' ? '#ef4444' : (item.adType === 'native' ? '#a855f7' : '#3b82f6'));
+    
+    div.innerHTML = `
+      ${item.adType === 'video' ? `<video src="${item.videoUrl}" style="width:80px;height:120px;object-fit:cover;border-radius:8px;" muted></video>` : `<img src="${item.imageUrl}" alt="" style="object-fit: cover;">`}
+      <div class="upload-info" style="padding-right: 80px;">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span style="font-size: 0.7rem; color: ${item.isActive ? 'var(--primary-color)' : 'var(--text-muted)'}; font-weight: bold; text-transform: uppercase;">
+            ${item.isActive ? 'ACTIVE' : 'INACTIVE'}
+          </span>
+          <span style="font-size: 0.6rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+            ${item.adType || 'banner'}
+          </span>
+        </div>
+        <h4 style="font-weight: 700; font-size: 1.1rem; margin: 4px 0;">${item.title || 'Ad Campaign'}</h4>
+        <a href="${item.linkUrl || '#'}" target="_blank" style="font-size: 0.8rem; color: #3b82f6; display:block; margin-top:4px;">${item.linkUrl || 'No link'}</a>
+      </div>
+      <div style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); display: flex; gap: 8px;">
+        <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="editAd('${item.id}')">Edit</button>
+        <button class="btn-delete" style="position: relative; right: auto; top: auto; transform: none;" onclick="deleteAd('${item.id}')">✕</button>
+      </div>
+    `;
+    listCont.appendChild(div);
+  });
+}
+
+window.editAd = function(id) {
+  const item = window.currentAds.find(i => i.id === id);
+  if(!item) return;
+
+  document.getElementById('ad-type').value = item.adType || 'banner';
+  document.getElementById('ad-title').value = item.title || '';
+  document.getElementById('ad-desc').value = item.description || '';
+  document.getElementById('ad-image').value = item.imageUrl || '';
+  document.getElementById('ad-video').value = item.videoUrl || '';
+  document.getElementById('ad-link').value = item.linkUrl || '';
+  document.getElementById('ad-isActive').checked = item.isActive;
+  if(typeof toggleAdFields === 'function') toggleAdFields();
+  
+  window.editingAdId = item.id;
+  
+  const formTitle = document.querySelector('#ad-upload-form').previousElementSibling;
+  if (formTitle) formTitle.textContent = "Edit Ad Banner";
+  
+  const btnSubmit = document.querySelector('#ad-upload-form .btn-submit');
+  if (btnSubmit) btnSubmit.textContent = "Update Ad";
+  
+  // Scroll down to the ads section
+  document.querySelector('#ad-upload-form').scrollIntoView({ behavior: 'smooth' });
+};
+
+window.deleteAd = async function(id) {
+  const { error } = await supabaseClient
+    .from('banners')
+    .delete()
+    .eq('id', id);
+
+  if(error) {
+    alert("Error deleting ad: " + error.message);
+    return;
+  }
+  await renderAdminAdsList();
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
   await initFrontend();
   await initAdmin();
+  await initAdminAds();
 
   // User Dropdown toggle
   const userBtn = document.getElementById('user-menu-btn');

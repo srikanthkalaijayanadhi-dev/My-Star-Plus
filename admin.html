@@ -84,6 +84,77 @@
         </div>
       </div>
     </div>
+
+    <!-- Ad Management Header -->
+    <div class="admin-header" style="margin-top: 3rem;">
+      <div>
+        <h2 style="font-size: 2rem; margin-bottom: 8px;">Ad Management</h2>
+        <p style="color: var(--text-muted);">Manage promotional banners displayed on the homepage.</p>
+      </div>
+    </div>
+
+    <!-- Ad Management Grid -->
+    <div class="admin-grid">
+      <!-- Ad Upload Form -->
+      <div class="admin-glass-panel">
+        <h2 style="margin-bottom: 24px; font-size: 1.2rem;">Add New Ad Banner</h2>
+        <form id="ad-upload-form">
+          <div class="form-group">
+            <label>Ad Type</label>
+            <select id="ad-type" style="width:100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; outline: none; margin-bottom: 15px;" onchange="toggleAdFields()">
+              <option value="banner">Banner (Standard Image)</option>
+              <option value="native">Native (Blends with Movies)</option>
+              <option value="video">Video (Auto-playing Video)</option>
+              <option value="interstitial">Interstitial (Full Screen Popup)</option>
+            </select>
+          </div>
+          <div class="form-group" id="ad-title-group" style="display:none;">
+            <label>Title (For Native/Interstitial Ads)</label>
+            <input type="text" id="ad-title" placeholder="e.g. Sponsored Post">
+          </div>
+          <div class="form-group" id="ad-desc-group" style="display:none;">
+            <label>Description (For Native/Interstitial Ads)</label>
+            <input type="text" id="ad-desc" placeholder="Short description...">
+          </div>
+          <div class="form-group" id="ad-image-group">
+            <label>Ad Image URL (Banner/Thumbnail)</label>
+            <input type="url" id="ad-image" placeholder="https://...">
+          </div>
+          <div class="form-group" id="ad-video-group" style="display:none;">
+            <label>Ad Video URL (.mp4 format)</label>
+            <input type="url" id="ad-video" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Ad Redirect URL (Link)</label>
+            <input type="url" id="ad-link" placeholder="https://..." required>
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="ad-isActive" style="width: 20px; height: 20px;" checked>
+            <label style="margin-bottom: 0;">Is Active</label>
+          </div>
+          <button type="submit" class="btn-submit">Publish Ad</button>
+        </form>
+
+        <script>
+        function toggleAdFields() {
+          const type = document.getElementById('ad-type').value;
+          document.getElementById('ad-title-group').style.display = (type === 'native' || type === 'interstitial') ? 'block' : 'none';
+          document.getElementById('ad-desc-group').style.display = (type === 'native' || type === 'interstitial') ? 'block' : 'none';
+          document.getElementById('ad-video-group').style.display = (type === 'video') ? 'block' : 'none';
+          document.getElementById('ad-image-group').style.display = (type === 'video') ? 'none' : 'block';
+        }
+        </script>
+      </div>
+
+      <!-- Ad List -->
+      <div class="admin-glass-panel">
+        <h2 style="margin-bottom: 24px; font-size: 1.2rem;">Active Ads</h2>
+        <div id="ads-list">
+          <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">Loading ads...</p>
+        </div>
+      </div>
+    </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
