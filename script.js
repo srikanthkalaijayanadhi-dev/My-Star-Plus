@@ -1,12 +1,20 @@
-const STORAGE_KEY = 'starplus_vanilla_uploads';
-
-// Base content array matching user specifications
-const defaultContentData = [];
+const { createClient } = supabase;
+const supabaseUrl = 'https://iynkabsrmxszglezxozr.supabase.co';
+const supabaseKey = 'sb_publishable_qL4KS3fvZ4PVKyexbQ3Tkw_wU_eyIVZ';
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 // Helper: Get merged data
-function getAllContentData() {
-  const uploads = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  return [...uploads, ...defaultContentData];
+async function getAllContentData() {
+  const { data, error } = await supabaseClient
+    .from('movies')
+    .select('*')
+    .order('uploadDate', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching data:", error);
+    return [];
+  }
+  return data || [];
 }
 
 // Helper: Format ISO Date into "Monday, April 3" style
@@ -27,8 +35,8 @@ const SLIDE_DURATION = 4000;
 let heroSlidesData = [];
 
 // Initialize Index page
-function initFrontend() {
-  const allData = getAllContentData();
+async function initFrontend() {
+  const allData = await getAllContentData();
   
   // 1. Setup Hero Banner Slider
   heroSlidesData = allData.filter(item => item.isLatest === true);
@@ -275,11 +283,11 @@ window.checkAdminPassword = function() {
   }
 }
 
-function initAdmin() {
+async function initAdmin() {
   const form = document.getElementById('upload-form');
   if (!form) return;
 
-  renderAdminList();
+  await renderAdminList();
 
   // Allow enter key mapping to custom login prompt button since it's an overlay
   const pwdInput = document.getElementById('admin-pwd-input');
@@ -291,7 +299,7 @@ function initAdmin() {
     });
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = document.getElementById('upload-title').value;
     const category = document.getElementById('upload-category').value;
@@ -301,32 +309,41 @@ function initAdmin() {
     const views = parseInt(document.getElementById('upload-views').value) || 0;
     const isLatest = document.getElementById('upload-isLatest').checked;
 
-    const newItem = {
-      id: Date.now().toString(),
-      title,
-      category,
-      thumbnail,
-      banner,
-      videoLink,
-      views,
-      isLatest,
-      uploadDate: new Date().toISOString()
-    };
+    const btnSubmit = form.querySelector('.btn-submit');
+    const ogText = btnSubmit.textContent;
+    btnSubmit.textContent = 'Uploading...';
+    btnSubmit.disabled = true;
 
-    let uploads = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    uploads.unshift(newItem); // put it at start
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(uploads));
+    const { data, error } = await supabaseClient
+      .from('movies')
+      .insert([{
+        title,
+        category,
+        thumbnail,
+        banner,
+        videoLink,
+        views,
+        isLatest
+      }]);
+
+    btnSubmit.textContent = ogText;
+    btnSubmit.disabled = false;
+
+    if (error) {
+      alert("Error uploading: " + error.message);
+      return;
+    }
 
     form.reset();
-    renderAdminList();
+    await renderAdminList();
   });
 }
 
-function renderAdminList() {
+async function renderAdminList() {
   const listCont = document.getElementById('uploads-list');
   if (!listCont) return;
 
-  const uploads = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  const uploads = await getAllContentData();
   listCont.innerHTML = '';
 
   if (uploads.length === 0) {
@@ -353,16 +370,22 @@ function renderAdminList() {
   });
 }
 
-window.deleteUpload = function(id) {
-  let uploads = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  uploads = uploads.filter(item => item.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(uploads));
-  renderAdminList();
+window.deleteUpload = async function(id) {
+  const { error } = await supabaseClient
+    .from('movies')
+    .delete()
+    .eq('id', id);
+
+  if(error) {
+    alert("Error deleting: " + error.message);
+    return;
+  }
+  await renderAdminList();
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  initFrontend();
-  initAdmin();
+document.addEventListener('DOMContentLoaded', async () => {
+  await initFrontend();
+  await initAdmin();
 
   // User Dropdown toggle
   const userBtn = document.getElementById('user-menu-btn');
