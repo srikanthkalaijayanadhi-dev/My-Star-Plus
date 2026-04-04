@@ -217,11 +217,11 @@ function buildHeroSlider() {
         </div>
         <h1 class="hero-title">${item.title}</h1>
         <div class="hero-actions">
-          <a href="${item.videoLink}" target="_blank" class="btn-primary" style="text-decoration:none;">
+          <button class="btn-primary" onclick='handleWatchClick(${JSON.stringify(item).replace(/'/g, "&#39;")})' style="text-decoration:none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="black" stroke="black" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             Watch Now
-          </a>
-          <button class="btn-secondary" onclick='openModal(${JSON.stringify(item)})'>
+          </button>
+          <button class="btn-secondary" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
             More Info
           </button>
@@ -342,7 +342,15 @@ window.openModal = function(itemData) {
   document.getElementById('modal-title').textContent = itemData.title;
   document.getElementById('modal-category').innerHTML = `${itemData.category} <span style="color:var(--text-muted); font-size:0.7rem; margin-left:10px;">📅 ${dateStr}</span> <span style="color:var(--text-muted); font-size:0.7rem; margin-left:10px;">👁 ${viewsStr} Views</span>`;
   document.getElementById('modal-img').src = imgUrl;
-  document.getElementById('modal-link').href = itemData.videoLink;
+  
+  const watchBtn = document.getElementById('modal-link');
+  if(watchBtn) {
+    watchBtn.onclick = function(e) {
+      e.preventDefault();
+      forceCloseModal();
+      handleWatchClick(itemData);
+    };
+  }
   
   modal.classList.add('active');
   document.body.style.overflow = 'hidden'; // Blur bg automatically handled via CSS backdrop-filter if applied to a wrapper, but we'll apply it to the main content
@@ -364,6 +372,178 @@ window.forceCloseModal = function() {
     document.querySelector('.main-content')?.classList.remove('blurred');
     document.querySelector('#hero-slider')?.classList.remove('blurred');
   }
+}
+
+/* =========================================
+   Watch Overlay Logic 
+========================================= */
+let currentWatchItem = null;
+
+window.handleWatchClick = function(item) {
+  if (item.embedCode && item.embedCode.trim() !== '') {
+    openWatchOverlay(item);
+  } else if (item.videoLink && item.videoLink.trim() !== '') {
+    window.open(item.videoLink, '_blank');
+  } else {
+    alert('No content available');
+  }
+}
+
+window.openWatchOverlay = function(item) {
+  currentWatchItem = item;
+  
+  const overlay = document.getElementById('watch-overlay');
+  if(!overlay) return;
+  
+  document.getElementById('watch-video-container').innerHTML = item.embedCode;
+  document.getElementById('watch-title').textContent = item.title;
+  document.getElementById('watch-views').textContent = (item.views || 0).toLocaleString() + ' views';
+  document.getElementById('watch-date').textContent = item.uploadDate ? formatDate(item.uploadDate) : 'Unknown Date';
+  document.getElementById('watch-desc').innerHTML = (item.description || '').replace(/\n/g, '<br>');
+  
+  updateEngagementUI();
+  
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+window.closeWatchOverlay = function() {
+  const overlay = document.getElementById('watch-overlay');
+  if(overlay) {
+    overlay.classList.remove('active');
+    document.getElementById('watch-video-container').innerHTML = ''; // clear iframe to stop playing
+    document.body.style.overflow = 'auto';
+    currentWatchItem = null;
+  }
+}
+
+// User Engagement Logic
+function updateEngagementUI() {
+  if(!currentWatchItem) return;
+  
+  const likes = currentWatchItem.likes || 0;
+  const dislikes = currentWatchItem.dislikes || 0;
+  const reactions = currentWatchItem.reactions || {};
+  
+  document.getElementById('watch-like-count').textContent = likes.toLocaleString();
+  document.getElementById('watch-dislike-count').textContent = dislikes.toLocaleString();
+  
+  document.getElementById('react-heart').textContent = (reactions.heart || 0).toLocaleString();
+  document.getElementById('react-laugh').textContent = (reactions.laugh || 0).toLocaleString();
+  document.getElementById('react-wow').textContent = (reactions.wow || 0).toLocaleString();
+  
+  // Update Active States Based on LocalStorage
+  const userActions = JSON.parse(localStorage.getItem('userActions_' + currentWatchItem.id) || '{}');
+  
+  const likeBtn = document.getElementById('btn-like');
+  const dislikeBtn = document.getElementById('btn-dislike');
+  
+  likeBtn.classList.toggle('active', userActions.liked === true);
+  dislikeBtn.classList.toggle('active', userActions.disliked === true);
+}
+
+async function saveEngagement(updates) {
+  if(!currentWatchItem) return;
+  
+  // Update remote DB
+  const { error } = await supabaseClient
+    .from('movies')
+    .update(updates)
+    .eq('id', currentWatchItem.id);
+    
+  if (error) console.error("Error updating engagement:", error);
+}
+
+window.handleLike = function() {
+  if(!currentWatchItem) return;
+  const userActions = JSON.parse(localStorage.getItem('userActions_' + currentWatchItem.id) || '{}');
+  
+  let likes = currentWatchItem.likes || 0;
+  let dislikes = currentWatchItem.dislikes || 0;
+  
+  if (userActions.liked) {
+    // Remove like
+    likes = Math.max(0, likes - 1);
+    userActions.liked = false;
+  } else {
+    // Add like
+    likes += 1;
+    userActions.liked = true;
+    if (userActions.disliked) {
+      dislikes = Math.max(0, dislikes - 1);
+      userActions.disliked = false;
+    }
+  }
+  
+  currentWatchItem.likes = likes;
+  currentWatchItem.dislikes = dislikes;
+  localStorage.setItem('userActions_' + currentWatchItem.id, JSON.stringify(userActions));
+  updateEngagementUI();
+  saveEngagement({ likes, dislikes });
+}
+
+window.handleDislike = function() {
+  if(!currentWatchItem) return;
+  const userActions = JSON.parse(localStorage.getItem('userActions_' + currentWatchItem.id) || '{}');
+  
+  let likes = currentWatchItem.likes || 0;
+  let dislikes = currentWatchItem.dislikes || 0;
+  
+  if (userActions.disliked) {
+    // Remove dislike
+    dislikes = Math.max(0, dislikes - 1);
+    userActions.disliked = false;
+  } else {
+    // Add dislike
+    dislikes += 1;
+    userActions.disliked = true;
+    if (userActions.liked) {
+      likes = Math.max(0, likes - 1);
+      userActions.liked = false;
+    }
+  }
+  
+  currentWatchItem.likes = likes;
+  currentWatchItem.dislikes = dislikes;
+  localStorage.setItem('userActions_' + currentWatchItem.id, JSON.stringify(userActions));
+  updateEngagementUI();
+  saveEngagement({ likes, dislikes });
+}
+
+window.toggleReactionMenu = function() {
+  const menu = document.getElementById('reaction-menu');
+  if(menu) menu.classList.toggle('show');
+}
+
+window.handleReaction = function(type) {
+  if(!currentWatchItem) return;
+  
+  const userActions = JSON.parse(localStorage.getItem('userActions_' + currentWatchItem.id) || '{}');
+  let reactions = currentWatchItem.reactions || {};
+  if (typeof reactions === 'string') {
+    try { reactions = JSON.parse(reactions); } catch(e) { reactions = {}; }
+  }
+  
+  // Can react once per type
+  const reactedTypes = userActions.reactions || {};
+  
+  if (reactedTypes[type]) {
+    // Remove reaction
+    reactions[type] = Math.max(0, (reactions[type] || 1) - 1);
+    reactedTypes[type] = false;
+  } else {
+    // Add reaction
+    reactions[type] = (reactions[type] || 0) + 1;
+    reactedTypes[type] = true;
+  }
+  
+  userActions.reactions = reactedTypes;
+  currentWatchItem.reactions = reactions;
+  localStorage.setItem('userActions_' + currentWatchItem.id, JSON.stringify(userActions));
+  
+  updateEngagementUI();
+  saveEngagement({ reactions });
+  window.toggleReactionMenu();
 }
 
 /* =========================================
@@ -398,10 +578,12 @@ async function initAdmin() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = document.getElementById('upload-title').value;
+    const desc = document.getElementById('upload-desc').value;
     const category = document.getElementById('upload-category').value;
     const thumbnail = document.getElementById('upload-thumb').value;
     const banner = document.getElementById('upload-banner').value;
     const videoLink = document.getElementById('upload-video').value;
+    const embedCode = document.getElementById('upload-embed').value;
     const views = parseInt(document.getElementById('upload-views').value) || 0;
     const isLatest = document.getElementById('upload-isLatest').checked;
 
@@ -412,10 +594,12 @@ async function initAdmin() {
 
     const payload = {
       title,
+      description: desc,
       category,
       thumbnail,
       banner,
       videoLink,
+      embedCode,
       views,
       isLatest,
       uploadDate: new Date().toISOString() // Updates to current date and day
@@ -425,6 +609,9 @@ async function initAdmin() {
     if (window.editingId) {
       query = query.update(payload).eq('id', window.editingId);
     } else {
+      payload.likes = 0;
+      payload.dislikes = 0;
+      payload.reactions = {};
       query = query.insert([payload]);
     }
 
@@ -490,10 +677,12 @@ window.editUpload = function(id) {
   if(!item) return;
 
   document.getElementById('upload-title').value = item.title;
+  document.getElementById('upload-desc').value = item.description || '';
   document.getElementById('upload-category').value = item.category;
   document.getElementById('upload-thumb').value = item.thumbnail;
   document.getElementById('upload-banner').value = item.banner;
-  document.getElementById('upload-video').value = item.videoLink;
+  document.getElementById('upload-video').value = item.videoLink || '';
+  document.getElementById('upload-embed').value = item.embedCode || '';
   document.getElementById('upload-views').value = item.views || 0;
   document.getElementById('upload-isLatest').checked = Boolean(item.isLatest);
   

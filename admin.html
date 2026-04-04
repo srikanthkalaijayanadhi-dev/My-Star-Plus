@@ -50,6 +50,10 @@
             <input type="text" id="upload-title" placeholder="e.g. Avengers: Endgame" required>
           </div>
           <div class="form-group">
+            <label>Description</label>
+            <textarea id="upload-desc" placeholder="Content description..." rows="3" style="width:100%;padding:12px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;outline:none;resize:vertical;"></textarea>
+          </div>
+          <div class="form-group">
             <label>Category</label>
             <input type="text" id="upload-category" placeholder="e.g. Action, Sci-Fi" required>
           </div>
@@ -62,8 +66,12 @@
             <input type="url" id="upload-banner" placeholder="https://..." required>
           </div>
           <div class="form-group">
-            <label>Video Redirect URL</label>
-            <input type="url" id="upload-video" placeholder="https://youtube.com/..." required>
+            <label>Website Redirect Link</label>
+            <input type="url" id="upload-video" placeholder="https://youtube.com/...">
+          </div>
+          <div class="form-group">
+            <label>Embed Video Code (HTML iframe)</label>
+            <textarea id="upload-embed" placeholder="<iframe...></iframe>" rows="3" style="width:100%;padding:12px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;outline:none;resize:vertical;"></textarea>
           </div>
           <div class="form-group">
             <label>Initial Views</label>
