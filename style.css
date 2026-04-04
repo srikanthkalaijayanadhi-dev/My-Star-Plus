@@ -710,6 +710,66 @@ nav.scrolled {
   font-weight: 700;
 }
 
+/* Channel Branding Bar */
+.watch-channel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+
+.watch-channel-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.watch-channel-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.watch-channel-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.watch-channel-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.watch-channel-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+}
+
+.watch-channel-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e50914;
+  background: rgba(229,9,20,0.1);
+  border: 1px solid rgba(229,9,20,0.25);
+  border-radius: 20px;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+
 .watch-meta {
   display: flex;
   justify-content: space-between;

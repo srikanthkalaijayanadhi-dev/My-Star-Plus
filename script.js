@@ -404,6 +404,16 @@ window.openWatchOverlay = function(item) {
   document.getElementById('watch-date').textContent = item.uploadDate ? formatDate(item.uploadDate) : 'Unknown Date';
   document.getElementById('watch-desc').innerHTML = (item.description || '').replace(/\n/g, '<br>');
   
+  // Inject Channel Branding
+  const profile = JSON.parse(localStorage.getItem('channelProfile') || '{}');
+  const channelName = document.getElementById('watch-channel-name');
+  const channelLogo = document.getElementById('watch-channel-logo');
+  if (channelName) channelName.textContent = profile.name || 'My Star Plus';
+  if (channelLogo) {
+    channelLogo.src = profile.logo || '';
+    channelLogo.style.display = profile.logo ? 'block' : 'none';
+  }
+  
   updateEngagementUI();
   
   overlay.classList.add('active');
@@ -562,6 +572,47 @@ window.handleReaction = function(type) {
 }
 
 /* =========================================
+   Channel Profile Logic
+========================================= */
+
+window.saveChannelProfile = function() {
+  const name = document.getElementById('channel-name')?.value.trim();
+  const logo = document.getElementById('channel-logo')?.value.trim();
+  if (!name) return;
+
+  localStorage.setItem('channelProfile', JSON.stringify({ name, logo }));
+
+  // Live preview
+  const previewName = document.getElementById('channel-preview-name');
+  const previewLogo = document.getElementById('channel-preview-logo');
+  if (previewName) previewName.textContent = name;
+  if (previewLogo) previewLogo.src = logo;
+
+  const msg = document.getElementById('channel-save-msg');
+  if (msg) {
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+  }
+}
+
+function loadChannelProfileInAdmin() {
+  const profile = JSON.parse(localStorage.getItem('channelProfile') || '{}');
+  const nameEl = document.getElementById('channel-name');
+  const logoEl = document.getElementById('channel-logo');
+  const previewName = document.getElementById('channel-preview-name');
+  const previewLogo = document.getElementById('channel-preview-logo');
+
+  if (nameEl && profile.name) nameEl.value = profile.name;
+  if (logoEl && profile.logo) logoEl.value = profile.logo;
+  if (previewName && profile.name) previewName.textContent = profile.name;
+  if (previewLogo && profile.logo) previewLogo.src = profile.logo;
+
+  // Update preview on input
+  if (nameEl) nameEl.addEventListener('input', () => { if(previewName) previewName.textContent = nameEl.value || 'Channel Name'; });
+  if (logoEl) logoEl.addEventListener('input', () => { if(previewLogo) previewLogo.src = logoEl.value; });
+}
+
+/* =========================================
    Admin Logic (admin.html)
 ========================================= */
 
@@ -611,6 +662,7 @@ async function initAdmin() {
   }
 
   await renderAdminList();
+  loadChannelProfileInAdmin();
 
   // Allow enter key for login inputs
   const emailInput = document.getElementById('admin-email-input');
