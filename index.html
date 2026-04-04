@@ -10,6 +10,7 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="ppck-ver" content="8ea83337e0b2d6bf495d3aa20865bdb8" />
   <title>STARPLUS+ OTT Platform</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -122,22 +123,22 @@
         <p>Watch this premium content now. Experience high quality cinematic storytelling directly on your device.</p>
         
         <div class="watch-actions" style="margin-bottom: 2rem;">
-          <button class="action-btn" id="btn-like" onclick="handleLike()">
+          <button class="action-btn btn-like" onclick="handleLike()">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-            <span id="watch-like-count">0</span>
+            <span class="watch-like-count">0</span>
           </button>
-          <button class="action-btn" id="btn-dislike" onclick="handleDislike()">
+          <button class="action-btn btn-dislike" onclick="handleDislike()">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>
-            <span id="watch-dislike-count">0</span>
+            <span class="watch-dislike-count">0</span>
           </button>
           <div class="reaction-picker">
-            <button class="action-btn" id="btn-reaction" onclick="toggleReactionMenu()">
+            <button class="action-btn btn-reaction" onclick="toggleReactionMenu(this)">
               😀 React
             </button>
-            <div class="reaction-menu" id="reaction-menu">
-              <button onclick="handleReaction('heart')">❤️ <span id="react-heart">0</span></button>
-              <button onclick="handleReaction('laugh')">😂 <span id="react-laugh">0</span></button>
-              <button onclick="handleReaction('wow')">😮 <span id="react-wow">0</span></button>
+            <div class="reaction-menu">
+              <button onclick="handleReaction('heart')">❤️ <span class="react-heart">0</span></button>
+              <button onclick="handleReaction('laugh')">😂 <span class="react-laugh">0</span></button>
+              <button onclick="handleReaction('wow')">😮 <span class="react-wow">0</span></button>
             </div>
           </div>
         </div>
@@ -168,6 +169,36 @@
         <div class="watch-meta">
           <div class="watch-stats">
             <span id="watch-views">0 views</span> • <span id="watch-date">Date</span>
+          </div>
+          <div class="watch-actions">
+            <button class="action-btn btn-like" onclick="handleLike()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path
+                  d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3">
+                </path>
+              </svg>
+              <span class="watch-like-count">0</span>
+            </button>
+            <button class="action-btn btn-dislike" onclick="handleDislike()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path
+                  d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17">
+                </path>
+              </svg>
+              <span class="watch-dislike-count">0</span>
+            </button>
+            <div class="reaction-picker">
+              <button class="action-btn btn-reaction" onclick="toggleReactionMenu(this)">
+                😀 React
+              </button>
+              <div class="reaction-menu">
+                <button onclick="handleReaction('heart')">❤️ <span class="react-heart">0</span></button>
+                <button onclick="handleReaction('laugh')">😂 <span class="react-laugh">0</span></button>
+                <button onclick="handleReaction('wow')">😮 <span class="react-wow">0</span></button>
+              </div>
+            </div>
           </div>
         </div>
 

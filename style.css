@@ -14,6 +14,14 @@
   font-family: 'Inter', system-ui, sans-serif;
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-8px); }
+  40%       { transform: translateX(8px); }
+  60%       { transform: translateX(-5px); }
+  80%       { transform: translateX(5px); }
+}
+
 html, body {
   background-color: var(--bg-color);
   color: var(--text-main);
@@ -201,8 +209,8 @@ nav.scrolled {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to top, var(--bg-color) 0%, rgba(9, 9, 11, 0.4) 50%, transparent),
-              linear-gradient(to right, var(--bg-color) 0%, rgba(9, 9, 11, 0.7) 40%, transparent 100%);
+  background: linear-gradient(to top, var(--bg-color) 0%, rgba(9, 9, 11, 0.5) 30%, transparent 80%),
+              linear-gradient(to right, var(--bg-color) 0%, rgba(9, 9, 11, 0.5) 30%, transparent 80%);
   z-index: 1;
 }
 
@@ -1018,8 +1026,8 @@ nav.scrolled {
     flex-direction: column; 
     align-items: center; 
     width: 100%;
-    background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
-    padding: 6rem 1.5rem 1.5rem 1.5rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, transparent 80%);
+    padding: 3rem 1.5rem 1.5rem 1.5rem;
   }
   .hero-title { font-size: 2rem; margin-bottom: 1rem; letter-spacing: -0.5px; line-height: 1.2; }
   .hero-badges { justify-content: center; margin-bottom: 0.8rem; }

@@ -428,21 +428,18 @@ function updateEngagementUI() {
   const dislikes = currentWatchItem.dislikes || 0;
   const reactions = currentWatchItem.reactions || {};
   
-  document.getElementById('watch-like-count').textContent = likes.toLocaleString();
-  document.getElementById('watch-dislike-count').textContent = dislikes.toLocaleString();
+  document.querySelectorAll('.watch-like-count').forEach(el => el.textContent = likes.toLocaleString());
+  document.querySelectorAll('.watch-dislike-count').forEach(el => el.textContent = dislikes.toLocaleString());
   
-  document.getElementById('react-heart').textContent = (reactions.heart || 0).toLocaleString();
-  document.getElementById('react-laugh').textContent = (reactions.laugh || 0).toLocaleString();
-  document.getElementById('react-wow').textContent = (reactions.wow || 0).toLocaleString();
+  document.querySelectorAll('.react-heart').forEach(el => el.textContent = (reactions.heart || 0).toLocaleString());
+  document.querySelectorAll('.react-laugh').forEach(el => el.textContent = (reactions.laugh || 0).toLocaleString());
+  document.querySelectorAll('.react-wow').forEach(el => el.textContent = (reactions.wow || 0).toLocaleString());
   
   // Update Active States Based on LocalStorage
   const userActions = JSON.parse(localStorage.getItem('userActions_' + currentWatchItem.id) || '{}');
   
-  const likeBtn = document.getElementById('btn-like');
-  const dislikeBtn = document.getElementById('btn-dislike');
-  
-  likeBtn.classList.toggle('active', userActions.liked === true);
-  dislikeBtn.classList.toggle('active', userActions.disliked === true);
+  document.querySelectorAll('.btn-like').forEach(btn => btn.classList.toggle('active', userActions.liked === true));
+  document.querySelectorAll('.btn-dislike').forEach(btn => btn.classList.toggle('active', userActions.disliked === true));
 }
 
 async function saveEngagement(updates) {
@@ -513,10 +510,25 @@ window.handleDislike = function() {
   saveEngagement({ likes, dislikes });
 }
 
-window.toggleReactionMenu = function() {
-  const menu = document.getElementById('reaction-menu');
-  if(menu) menu.classList.toggle('show');
+window.toggleReactionMenu = function(btn) {
+  const menu = btn.nextElementSibling;
+  if (!menu) return;
+  
+  if (menu.classList.contains('active')) {
+    menu.classList.remove('active');
+  } else {
+    // hide all others
+    document.querySelectorAll('.reaction-menu').forEach(m => m.classList.remove('active'));
+    menu.classList.add('active');
+  }
 }
+
+// Close reaction menu if clicked outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.reaction-picker')) {
+    document.querySelectorAll('.reaction-menu').forEach(m => m.classList.remove('active'));
+  }
+});
 
 window.handleReaction = function(type) {
   if(!currentWatchItem) return;
@@ -554,11 +566,37 @@ window.handleReaction = function(type) {
 ========================================= */
 
 window.checkAdminPassword = function() {
-  const input = document.getElementById('admin-pwd-input').value;
-  if(input === '113003') {
+  const emailInput = document.getElementById('admin-email-input').value.trim().toLowerCase();
+  const pwdInput = document.getElementById('admin-pwd-input').value;
+  const errorEl = document.getElementById('admin-pwd-error');
+
+  const ADMIN_EMAIL = 'heartbeatsseason3gmail.com'.toLowerCase();
+  const ADMIN_PASSWORD = 'Tamilpriyan';
+
+  if (emailInput === ADMIN_EMAIL && pwdInput === ADMIN_PASSWORD) {
+    errorEl.style.display = 'none';
+    sessionStorage.setItem('adminAuthenticated', 'true');
     document.getElementById('admin-login-overlay').style.display = 'none';
   } else {
-    document.getElementById('admin-pwd-error').style.display = 'block';
+    errorEl.style.display = 'block';
+    // Shake animation
+    const card = document.querySelector('#admin-login-overlay [style*="border-radius:16px"]');
+    if (card) {
+      card.style.animation = 'none';
+      card.style.animation = 'shake 0.4s ease';
+    }
+  }
+}
+
+window.togglePwdVisibility = function() {
+  const input = document.getElementById('admin-pwd-input');
+  const btn = document.getElementById('pwd-toggle-btn');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
   }
 }
 
@@ -568,13 +606,17 @@ async function initAdmin() {
 
   await renderAdminList();
 
-  // Allow enter key mapping to custom login prompt button since it's an overlay
+  // Allow enter key for login inputs
+  const emailInput = document.getElementById('admin-email-input');
   const pwdInput = document.getElementById('admin-pwd-input');
-  if(pwdInput) {
-    pwdInput.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
-        checkAdminPassword();
-      }
+  if (emailInput) {
+    emailInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') checkAdminPassword();
+    });
+  }
+  if (pwdInput) {
+    pwdInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') checkAdminPassword();
     });
   }
 
