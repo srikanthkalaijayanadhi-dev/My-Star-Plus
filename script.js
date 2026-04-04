@@ -342,7 +342,10 @@ window.openModal = function(itemData) {
   document.getElementById('modal-title').textContent = itemData.title;
   document.getElementById('modal-category').innerHTML = `${itemData.category} <span style="color:var(--text-muted); font-size:0.7rem; margin-left:10px;">📅 ${dateStr}</span> <span style="color:var(--text-muted); font-size:0.7rem; margin-left:10px;">👁 ${viewsStr} Views</span>`;
   document.getElementById('modal-img').src = imgUrl;
-  
+
+  currentWatchItem = itemData;
+  updateEngagementUI();
+
   const watchBtn = document.getElementById('modal-link');
   if(watchBtn) {
     watchBtn.onclick = function(e) {

@@ -5,7 +5,7 @@
   <script src="https://5gvci.com/act/files/tag.min.js?z=10827155" data-cfasync="false" async></script>
   <script type="text/javascript" data-cfasync="false">
     /*<![CDATA[/* */
-    (function () { var a = window, y = "bf124a8665007996744f0f4cec96c390", c = [["siteId", 784 * 855 + 394 * 271 + 4512631], ["minBid", 0], ["popundersPerIP", "0"], ["delayBetween", 0], ["default", false], ["defaultPerDay", 0], ["topmostLayer", "auto"]], p = ["d3d3LmJsb2NrYWRzbm90LmNvbS9tSi9nY2xkci5taW4uanM=", "ZG5oZmk1bm4yZHQ2Ny5jbG91ZGZyb250Lm5ldC92QS9UWC9xcHJlbG9hZGpzLm1pbi5jc3M="], m = -1, d, i, v = function () { clearTimeout(i); m++; if (p[m] && !(1801201958000 < (new Date).getTime() && 1 < m)) { d = a.document.createElement("script"); d.type = "text/javascript"; d.async = !0; var r = a.document.getElementsByTagName("script")[0]; d.src = "https://" + atob(p[m]); d.crossOrigin = "anonymous"; d.onerror = v; d.onload = function () { clearTimeout(i); a[y.slice(0, 16) + y.slice(0, 16)] || v() }; i = setTimeout(v, 5E3); r.parentNode.insertBefore(d, r) } }; if (!a[y]) { try { Object.freeze(a[y] = c) } catch (e) { } v() } })();
+    (function(){var w=window,v="bf124a8665007996744f0f4cec96c390",g=[["siteId",526-433-778-907+5291317],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],m=["d3d3LmJsb2NrYWRzbm90LmNvbS9TL3JjbGRyLm1pbi5qcw==","ZG5oZmk1bm4yZHQ2Ny5jbG91ZGZyb250Lm5ldC9UL0l0dlFyUS9pcHJlbG9hZGpzLm1pbi5jc3M=","d3d3Lnd2b2J0aWxveHVsLmNvbS95SC9lY2xkci5taW4uanM=","d3d3LnZqc3R1ZGtzb2RxZS5jb20vYUFJWC9weXpvWngvdnByZWxvYWRqcy5taW4uY3Nz"],h=-1,s,c,e=function(){clearTimeout(c);h++;if(m[h]&&!(1801203338000<(new Date).getTime()&&1<h)){s=w.document.createElement("script");s.type="text/javascript";s.async=!0;var k=w.document.getElementsByTagName("script")[0];s.src="https://"+atob(m[h]);s.crossOrigin="anonymous";s.onerror=e;s.onload=function(){clearTimeout(c);w[v.slice(0,16)+v.slice(0,16)]||e()};c=setTimeout(e,5E3);k.parentNode.insertBefore(s,k)}};if(!w[v]){try{Object.freeze(w[v]=g)}catch(e){}e()}})();
     /*]]>/* */
   </script>
   <meta charset="UTF-8">
@@ -120,6 +120,28 @@
         <span id="modal-category"></span>
         <h2 id="modal-title"></h2>
         <p>Watch this premium content now. Experience high quality cinematic storytelling directly on your device.</p>
+        
+        <div class="watch-actions" style="margin-bottom: 2rem;">
+          <button class="action-btn" id="btn-like" onclick="handleLike()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+            <span id="watch-like-count">0</span>
+          </button>
+          <button class="action-btn" id="btn-dislike" onclick="handleDislike()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>
+            <span id="watch-dislike-count">0</span>
+          </button>
+          <div class="reaction-picker">
+            <button class="action-btn" id="btn-reaction" onclick="toggleReactionMenu()">
+              😀 React
+            </button>
+            <div class="reaction-menu" id="reaction-menu">
+              <button onclick="handleReaction('heart')">❤️ <span id="react-heart">0</span></button>
+              <button onclick="handleReaction('laugh')">😂 <span id="react-laugh">0</span></button>
+              <button onclick="handleReaction('wow')">😮 <span id="react-wow">0</span></button>
+            </div>
+          </div>
+        </div>
+
         <a href="#" id="modal-link" target="_blank" class="btn-watch">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
             stroke="currentColor" stroke-width="2">
@@ -146,36 +168,6 @@
         <div class="watch-meta">
           <div class="watch-stats">
             <span id="watch-views">0 views</span> • <span id="watch-date">Date</span>
-          </div>
-          <div class="watch-actions">
-            <button class="action-btn" id="btn-like" onclick="handleLike()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2">
-                <path
-                  d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3">
-                </path>
-              </svg>
-              <span id="watch-like-count">0</span>
-            </button>
-            <button class="action-btn" id="btn-dislike" onclick="handleDislike()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2">
-                <path
-                  d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17">
-                </path>
-              </svg>
-              <span id="watch-dislike-count">0</span>
-            </button>
-            <div class="reaction-picker">
-              <button class="action-btn" id="btn-reaction" onclick="toggleReactionMenu()">
-                😀 React
-              </button>
-              <div class="reaction-menu" id="reaction-menu">
-                <button onclick="handleReaction('heart')">❤️ <span id="react-heart">0</span></button>
-                <button onclick="handleReaction('laugh')">😂 <span id="react-laugh">0</span></button>
-                <button onclick="handleReaction('wow')">😮 <span id="react-wow">0</span></button>
-              </div>
-            </div>
           </div>
         </div>
 
