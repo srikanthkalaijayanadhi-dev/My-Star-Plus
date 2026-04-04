@@ -575,7 +575,7 @@ window.checkAdminPassword = function() {
 
   if (emailInput === ADMIN_EMAIL && pwdInput === ADMIN_PASSWORD) {
     errorEl.style.display = 'none';
-    sessionStorage.setItem('adminAuthenticated', 'true');
+    localStorage.setItem('adminAuthenticated', 'true');
     document.getElementById('admin-login-overlay').style.display = 'none';
   } else {
     errorEl.style.display = 'block';
@@ -603,6 +603,12 @@ window.togglePwdVisibility = function() {
 async function initAdmin() {
   const form = document.getElementById('upload-form');
   if (!form) return;
+
+  // Auto-restore login if already authenticated
+  const overlay = document.getElementById('admin-login-overlay');
+  if (localStorage.getItem('adminAuthenticated') === 'true') {
+    if (overlay) overlay.style.display = 'none';
+  }
 
   await renderAdminList();
 
